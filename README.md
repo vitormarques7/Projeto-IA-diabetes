@@ -10,7 +10,7 @@ Template educacional para o desenvolvimento de um projeto acadêmico de Machine 
 | --- | --- | --- |
 | João Vitor dos Santos Marques | `@vitormarques7` | A definir |
 | Ana Oliveira Vanderlei | `@usuario` | A definir |
-| Diego Rodrigues | `@usuario` | A definir |
+| Diego Rodrigues | `@DiegoRCJ` | A definir |
 | Raquel | `@usuario` | A definir |
 
 ## Descrição geral
