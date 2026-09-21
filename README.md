@@ -8,7 +8,7 @@ Template educacional para o desenvolvimento de um projeto acadêmico de Machine 
 
 | Integrante | Conta no GitHub | Responsabilidade inicial |
 | --- | --- | --- |
-| João Vitor dos Santos Marques | `@uvitormarques7` | A definir |
+| João Vitor dos Santos Marques | `@vitormarques7` | A definir |
 | Ana Oliveira Vanderlei | `@usuario` | A definir |
 | Diego Rodrigues | `@usuario` | A definir |
 | Raquel | `@usuario` | A definir |
