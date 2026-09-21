@@ -8,13 +8,25 @@ Template educacional para o desenvolvimento de um projeto acadêmico de Machine 
 
 | Integrante | Conta no GitHub | Responsabilidade inicial |
 | --- | --- | --- |
-| Nome completo | `@usuario` | A definir |
-| Nome completo | `@usuario` | A definir |
-| Nome completo | `@usuario` | A definir |
+| João Vitor dos Santos Marques | `@uvitormarques7` | A definir |
+| Ana Oliveira Vanderlei | `@usuario` | A definir |
+| Diego Rodrigues | `@usuario` | A definir |
+| Raquel | `@usuario` | A definir |
 
 ## Descrição geral
 
-Preencha esta seção com uma visão geral do projeto, incluindo o problema estudado, sua relevância, os objetivos e, quando definido, o conjunto de dados que será utilizado. Não inclua aqui resultados que ainda não tenham sido obtidos ou avaliados pela equipe.
+Este projeto consiste na reprodução acadêmica do artigo "Diabetes prediction using machine learning and explainable AI techniques" (Tasin et al., 2023).
+
+O problema abordado é a predição precoce da diabetes mellitus, uma doença crônica que afeta milhões de pessoas e pode causar complicações severas se não diagnosticada a tempo. A relevância do projeto reside em aplicar técnicas de Machine Learning para automatizar esse diagnóstico com alta precisão e, crucialmente, utilizar Explainable AI (LIME e SHAP) para tornar as decisões do algoritmo transparentes para os profissionais de saúde. Nosso objetivo é reproduzir o tratamento de dados relatado no estudo, incluindo a imputação de dados semi-supervisionada para a variável "insulina" e o balanceamento de classes; treinar os classificadores mencionados no artigo e comparar as métricas de avaliação (Acurácia, F1-Score, AUC) obtidas pela equipe com as relatadas pelos autores originais.
+
+## Conjunto de Dados:
+O estudo original utiliza uma combinação de dois datasets:
+Pima Indians Diabetes Database (disponível no Kaggle/UCI).
+RTML Dataset (um dataset privado de pacientes bengalis, disponibilizado publicamente pelos autores no repositório oficial do artigo).
+
+- **Artigo completo e publicado:** https://pmc.ncbi.nlm.nih.gov/articles/PMC10107388/
+- **Dataset (Kaggle):** https://www.kaggle.com/datasets/jamaltariqcheema/pima-indians-diabetes-dataset.
+</aside>
 
 ## Estrutura do repositório
 
