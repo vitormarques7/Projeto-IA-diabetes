@@ -1,4 +1,4 @@
-# Projeto de Inteligência Artificial — Nome Provisório
+# Projeto de Inteligência Artificial — Diabetes ML
 
 Template educacional para o desenvolvimento de um projeto acadêmico de Machine Learning na disciplina de Inteligência Artificial. Este repositório fornece apenas uma organização inicial: a definição do problema, a análise dos dados, os modelos e os experimentos deverão ser desenvolvidos pela equipe.
 
