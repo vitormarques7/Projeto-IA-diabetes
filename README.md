@@ -25,6 +25,7 @@ Pima Indians Diabetes Database (disponível no Kaggle/UCI).
 RTML Dataset (um dataset privado de pacientes bengalis, disponibilizado publicamente pelos autores no repositório oficial do artigo).
 
 - **Artigo completo e publicado:** https://pmc.ncbi.nlm.nih.gov/articles/PMC10107388/
+- **Github do estudo original:** https://github.com/tansin-nabil/Diabetes-Prediction-Using-Machine-Learning
 - **Dataset (Kaggle):** https://www.kaggle.com/datasets/jamaltariqcheema/pima-indians-diabetes-dataset.
 </aside>
 
