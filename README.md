@@ -9,7 +9,7 @@ Template educacional para o desenvolvimento de um projeto acadêmico de Machine 
 | Integrante | Conta no GitHub | Responsabilidade inicial |
 | --- | --- | --- |
 | João Vitor dos Santos Marques | `@vitormarques7` | A definir |
-| Ana Oliveira Vanderlei | `@usuario` | A definir |
+| Ana Oliveira Vanderlei | `@usuario` | Implementar modelo de Árvore de Decisão |
 | Diego Rodrigues | `@DiegoRCJ` | A definir |
 | Raquel de Lima Cavalcanti | `@raqueldelima236-sudo` | A definir |
 
