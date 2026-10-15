@@ -11,7 +11,7 @@ Template educacional para o desenvolvimento de um projeto acadêmico de Machine 
 | João Vitor dos Santos Marques | `@vitormarques7` | A definir |
 | Ana Oliveira Vanderlei | `@usuario` | Implementar modelo de Árvore de Decisão |
 | Diego Rodrigues | `@DiegoRCJ` | Tratamento de dados e MLP |
-| Raquel de Lima Cavalcanti | `@raqueldelima236-sudo` | A definir |
+| Raquel de Lima Cavalcanti | `@raqueldelima236-sudo` | implementar regressão logística |
 
 ## Descrição geral
 
