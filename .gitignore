@@ -1,5 +1,6 @@
 # Ambientes virtuais
 .venv/
+.venv*/
 venv/
 env/
 ENV/
@@ -62,6 +63,8 @@ results/figures/*
 !results/figures/.gitkeep
 results/metrics/*
 !results/metrics/.gitkeep
+results/artifacts/*
+!results/artifacts/.gitkeep
 
 # Artefatos comuns de modelos e dados grandes
 *.pkl

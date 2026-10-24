@@ -1,6 +1,6 @@
 # Projeto de Inteligência Artificial — Diabetes ML
 
-Template educacional para o desenvolvimento de um projeto acadêmico de Machine Learning na disciplina de Inteligência Artificial. Este repositório fornece apenas uma organização inicial: a definição do problema, a análise dos dados, os modelos e os experimentos deverão ser desenvolvidos pela equipe.
+Projeto acadêmico de reprodução de Machine Learning na disciplina de Inteligência Artificial, organizado conforme o template do professor. O pré-processamento Pima + RTML é compartilhado; os classificadores e a análise dos experimentos continuam sob responsabilidade dos integrantes.
 
 ## Equipe
 
@@ -27,7 +27,11 @@ RTML Dataset (um dataset privado de pacientes bengalis, disponibilizado publicam
 - **Artigo completo e publicado:** https://pmc.ncbi.nlm.nih.gov/articles/PMC10107388/
 - **Github do estudo original:** https://github.com/tansin-nabil/Diabetes-Prediction-Using-Machine-Learning
 - **Dataset (Kaggle):** https://www.kaggle.com/datasets/jamaltariqcheema/pima-indians-diabetes-dataset.
-</aside>
+
+A reprodução utiliza o Pima bruto (768 pacientes) e a versão RTML publicada com
+SkinThickness (109 pacientes), totalizando 877. A diferença em relação aos 203
+participantes descritos no artigo está documentada em [data/README.md](data/README.md),
+junto às correções de vazamento e às fontes fixadas em [data/sources.json](data/sources.json).
 
 ## Estrutura do repositório
 
@@ -42,28 +46,41 @@ RTML Dataset (um dataset privado de pacientes bengalis, disponibilizado publicam
 │   │   └── .gitkeep
 │   ├── processed/
 │   │   └── .gitkeep
-│   └── README.md
+│   ├── README.md
+│   └── sources.json
 ├── notebooks/
-│   └── .gitkeep
+│   ├── 01_preprocessamento.ipynb
+│   ├── README.md
+│   └── legacy/                    # versões anteriores preservadas
 ├── src/
 │   ├── data/
+│   │   ├── download.py
+│   │   ├── loader.py
+│   │   ├── schema.py
 │   │   └── __init__.py
 │   ├── preprocessing/
+│   │   ├── pipeline.py
+│   │   ├── diagnostics.py
+│   │   ├── prepare.py
 │   │   └── __init__.py
 │   ├── models/
 │   │   └── __init__.py
 │   ├── evaluation/
 │   │   └── __init__.py
 │   ├── utils/
+│   │   ├── paths.py
 │   │   └── __init__.py
 │   └── __init__.py
 ├── tests/
-│   ├── .gitkeep
+│   ├── conftest.py
+│   ├── test_preprocessing.py
 │   └── __init__.py
 ├── results/
 │   ├── figures/
 │   │   └── .gitkeep
-│   └── metrics/
+│   ├── metrics/
+│   │   └── .gitkeep
+│   └── artifacts/
 │       └── .gitkeep
 ├── .gitignore
 ├── README.md
@@ -83,25 +100,32 @@ RTML Dataset (um dataset privado de pacientes bengalis, disponibilizado publicam
 - `tests/`: testes automatizados do código produzido pela equipe.
 - `results/figures/`: figuras e gráficos gerados pelos experimentos.
 - `results/metrics/`: resultados de métricas gerados pelos experimentos.
+- `results/artifacts/`: transformadores ajustados, ignorados pelo Git.
 - `.github/`: modelos para Issues e Pull Requests.
 
 Os notebooks devem apoiar a exploração e a comunicação dos experimentos. Coloque código reutilizável em `src/` para evitar concentrar toda a implementação nos notebooks.
 
 ## Configuração do ambiente
 
-É recomendado utilizar Python 3.10 ou uma versão mais recente compatível com as dependências do projeto.
+Use **Python 3.11**, versão usada na validação. As dependências diretas estão
+fixadas em `requirements.txt`; as versões efetivamente usadas são registradas
+no relatório de preparação. No macOS, o XGBoost requer o runtime OpenMP:
+
+```bash
+brew install libomp
+```
 
 1. Clone o repositório e acesse sua pasta:
 
    ```bash
-   git clone <URL_DO_REPOSITORIO>
-   cd <NOME_DO_REPOSITORIO>
+   git clone https://github.com/vitormarques7/Projeto-IA-diabetes.git
+   cd Projeto-IA-diabetes
    ```
 
 2. Crie um ambiente virtual:
 
    ```bash
-   python -m venv .venv
+   python3.11 -m venv .venv
    ```
 
 3. Ative o ambiente virtual:
@@ -121,8 +145,101 @@ Os notebooks devem apoiar a exploração e a comunicação dos experimentos. Col
 4. Instale as dependências:
 
    ```bash
-   pip install -r requirements.txt
+   python -m pip install -r requirements.txt
    ```
+
+No Windows, crie o ambiente com `py -3.11 -m venv .venv`. Se houver bloqueio
+de ativação no PowerShell, use diretamente `.venv\Scripts\python.exe`.
+
+## Execução no VS Code
+
+Abra a pasta do repositório no VS Code. Instale as extensões **Python** e,
+para notebooks, **Jupyter**. Em **Python: Select Interpreter**, selecione
+`.venv/bin/python` (Windows: `.venv\Scripts\python.exe`). No notebook, selecione
+também esse ambiente em **Select Kernel**. O fluxo principal usa o terminal
+integrado e não depende do Google Colab.
+
+Na raiz do projeto, com o ambiente ativo:
+
+```bash
+python -m src.data.download
+python -m src.preprocessing.prepare
+python -m pytest -q
+```
+
+O download é reutilizável, verifica SHA-256 e não altera arquivos já existentes.
+A preparação gera os cenários `none`, `smote` e `adasyn`, cada um com
+`train.csv` e `test.csv` em `data/processed/`. As tabelas contêm sete
+características, nesta ordem: `Pregnancies`, `Glucose`, `BloodPressure`,
+`SkinThickness`, `Insulin`, `BMI`, `Age`; `Outcome` é a resposta separada.
+
+O relatório `results/metrics/preprocessing.json` registra configurações,
+versões, contagens antes/depois, médias, parâmetros de escala, pacientes usados
+na regressão e RMSE de XGB/SVR/GPR. A informação mútua fica em CSV e figura;
+as pipelines ajustadas ficam em `results/artifacts/`. Tudo é gerado localmente.
+O notebook `notebooks/01_preprocessamento.ipynb` oferece uma visualização local
+do mesmo fluxo. Os notebooks anteriores estão em `notebooks/legacy/`.
+
+## Integração com o modelo de cada integrante
+
+Todos devem usar a mesma divisão 80/20 estratificada, semente 0: 701 pacientes
+de treino e 176 de teste. `load_split()` retorna dados ainda não transformados,
+com identificadores no índice, origem em `_source` e metadados da divisão.
+`build_pipeline()` remove origem e pedigree antes do classificador e impede
+que o rótulo seja usado para prever insulina.
+
+Exemplo de integração com um estimador scikit-learn (substitua-o pelo seu):
+
+```python
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.metrics import roc_auc_score
+from src.data import load_split
+from src.preprocessing import build_pipeline
+
+split = load_split()
+pipeline = build_pipeline(LogisticRegression(max_iter=1000), sampling="adasyn")
+search = GridSearchCV(
+    pipeline,
+    {"model__C": [0.1, 1.0, 10.0]},
+    cv=StratifiedKFold(n_splits=3, shuffle=True, random_state=0),
+    scoring="roc_auc",
+    error_score="raise",
+)
+search.fit(split.X_train, split.y_train)
+# Avalie uma vez após escolher os parâmetros apenas no treino.
+probabilities = search.predict_proba(split.X_test)[:, 1]
+print(roc_auc_score(split.y_test, probabilities))
+```
+
+Use `sampling="none"`, `"smote"` ou `"adasyn"`. As etapas de imputação,
+regressão, reamostragem e escala são ajustadas novamente em cada fold.
+O regressor de insulina usa somente Pima de treino com respostas observadas;
+`Outcome` nunca entra como preditor. O diagnóstico de informação mútua não
+seleciona características usando o teste.
+
+Os CSVs já transformados servem para treinamento direto com parâmetros
+predefinidos. **Não faça GridSearchCV ou validação cruzada sobre esses CSVs**:
+isso reutilizaria transformações aprendidas fora dos folds. Para previsões com
+uma pipeline completa, forneça os dados brutos de `load_split()`, incluindo
+`_source`; não forneça dados que já foram normalizados. Para novas pessoas,
+será necessário definir um contrato de entrada específico em outra atividade.
+
+Após esta correção, cada integrante deve atualizar sua branch com a `main`
+após o merge, adaptar o carregamento e refazer treinamento e métricas. Não
+compare diretamente métricas dos antigos CSVs Pima com o novo Pima + RTML.
+Esta entrega não implementa os classificadores individuais, SHAP ou LIME.
+
+## Verificação
+
+Os testes sintéticos não precisam de rede. Após o download, também são
+executados os testes de integração com os 877 pacientes. Sem as fontes locais,
+esses testes de integração são explicitamente marcados como ignorados.
+São verificados: disjunção dos pacientes, dados brutos preservados, regras de
+zeros, sete características finais, independência dos rótulos na imputação,
+ausência de ajuste no teste, balanceamento somente no treino, serialização,
+reprodução e reajuste em cada fold. Igualdade com as métricas do artigo não
+é critério de aprovação.
 
 ## Organização dos dados
 
@@ -164,4 +281,6 @@ Faça commits pequenos e claros. Ao concluir a atividade, envie a branch e abra 
 
 ## Observação
 
-Este template não contém uma solução de Machine Learning. A escolha das técnicas, a implementação, os testes, os experimentos e a análise dos resultados são responsabilidades dos alunos.
+O repositório partiu do template da disciplina. O pré-processamento agora é
+compartilhado; a implementação dos classificadores, os experimentos e a análise
+dos resultados permanecem como responsabilidades dos integrantes.
