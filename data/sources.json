@@ -1,0 +1,16 @@
+{
+  "pima": {
+    "filename": "pima.csv",
+    "url": "https://raw.githubusercontent.com/jbrownlee/Datasets/d20fcb6402ae34e653d4513b00f39257bb37ed7f/pima-indians-diabetes.data.csv",
+    "commit": "d20fcb6402ae34e653d4513b00f39257bb37ed7f",
+    "sha256": "6bfe5d0f379d17a0e0819b996407e3c09bf80febd4287f2ed212190dfff154af",
+    "rows": 768
+  },
+  "rtml": {
+    "filename": "rtml_without_insulin.xlsx",
+    "url": "https://raw.githubusercontent.com/tansin-nabil/Diabetes-Prediction-Using-Machine-Learning/23b982a20815c4965da47b4b1745c5d3ef0735d1/RTML%20without%20Insulin.xlsx",
+    "commit": "23b982a20815c4965da47b4b1745c5d3ef0735d1",
+    "sha256": "96b7eeb0ca3d4d48640cfa036f248dd28526f70d814b10c330ef90503f5fd585",
+    "rows": 109
+  }
+}
