@@ -2,8 +2,11 @@
 
 import argparse
 import json
+import platform
+from importlib.metadata import version
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
@@ -11,9 +14,10 @@ from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_sco
 from sklearn.neighbors import KNeighborsClassifier
 
 from src.data import load_split
+from src.data.download import sources
 from src.data.schema import SAMPLING_METHODS, SEED
 from src.preprocessing import build_pipeline
-from src.utils.paths import RAW_DIR
+from src.utils.paths import RAW_DIR, RESULTS_DIR
 
 
 REFERENCE_PARAMS = {"n_neighbors": 95, "weights": "distance", "metric": "manhattan"}
@@ -95,13 +99,48 @@ def evaluate_models(fitted, scores, X_test, y_test):
     return pd.DataFrame(rows)
 
 
-def run(raw_dir=RAW_DIR):
+def save_results(results_dir, split, fitted, searches, scores, winner, table):
+    """Salva evidências e pipelines completas, ignoradas pelo Git."""
+    output = Path(results_dir)
+    metrics, artifacts = output / "metrics", output / "artifacts"
+    metrics.mkdir(parents=True, exist_ok=True)
+    artifacts.mkdir(parents=True, exist_ok=True)
+    table.to_csv(metrics / "knn_results.csv", index=False)
+    for scenario, search in searches.items():
+        pd.DataFrame(search.cv_results_).to_csv(metrics / f"knn_cv_{scenario}.csv", index=False)
+    for (scenario, kind), model in fitted.items():
+        joblib.dump(model, artifacts / f"knn_{scenario}_{kind}.joblib")
+    joblib.dump(fitted[(winner, "ajustado")], artifacts / "knn_best.joblib")
+    metadata = {
+        "referencia": {"url": REFERENCE_URL, "parametros": fitted[(SAMPLING_METHODS[0], "referencia")].named_steps["model"].get_params(),
+                       "observacao": "Configuração final com 95; células anteriores usam 74 vizinhos."},
+        "grade": searches[SAMPLING_METHODS[0]].param_grid, "semente": SEED, "folds": 3,
+        "selecao": "Maior AUC média na validação do treino; empate por ordem de cenários e grade.",
+        "ordem_cenarios": list(SAMPLING_METHODS), "cenario_selecionado": winner,
+        "fontes": sources(), "treino": len(split.X_train), "teste": len(split.X_test),
+        "classes_treino": split.y_train.value_counts().to_dict(),
+        "classes_teste": split.y_test.value_counts().to_dict(),
+        "ids_treino": split.X_train.index.tolist(), "ids_teste": split.X_test.index.tolist(),
+        "python": platform.python_version(),
+        "versoes": {pkg: version(pkg) for pkg in [
+            "numpy", "pandas", "scikit-learn", "imbalanced-learn", "xgboost", "joblib"
+        ]},
+        "melhores_parametros": {s: search.best_params_ for s, search in searches.items()},
+        "resultados": table.to_dict(orient="records"),
+    }
+    (metrics / "knn_experiment.json").write_text(
+        json.dumps(metadata, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8"
+    )
+
+
+def run(raw_dir=RAW_DIR, results_dir=RESULTS_DIR):
     split = load_split(raw_dir)
     fitted, searches, scores, winner = train_models(split.X_train, split.y_train)
     print(f"Cenário selecionado pela validação: {winner}", flush=True)
     table = evaluate_models(fitted, scores, split.X_test, split.y_test)
     if not np.isfinite(table.select_dtypes(include="number").to_numpy()).all():
         raise ValueError("As métricas devem ser finitas")
+    save_results(results_dir, split, fitted, searches, scores, winner, table)
     print(table.drop(columns="parametros").to_string(index=False))
     return table
 
@@ -109,8 +148,9 @@ def run(raw_dir=RAW_DIR):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
+    parser.add_argument("--results-dir", type=Path, default=RESULTS_DIR)
     args = parser.parse_args()
-    run(args.raw_dir)
+    run(args.raw_dir, args.results_dir)
 
 
 if __name__ == "__main__":
