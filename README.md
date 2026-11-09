@@ -8,7 +8,7 @@ Projeto acadêmico de reprodução de Machine Learning na disciplina de Intelig�
 
 | Integrante | Conta no GitHub | Responsabilidade inicial |
 | --- | --- | --- |
-| João Vitor dos Santos Marques | `@vitormarques7` | A definir |
+| João Vitor dos Santos Marques | `@vitormarques7` | Implementar e avaliar KNN |
 | Ana Oliveira Vanderlei | `@usuario` | Implementar modelo de Árvore de Decisão |
 | Diego Rodrigues | `@DiegoRCJ` | Tratamento de dados e MLP |
 | Raquel de Lima Cavalcanti | `@raqueldelima236-sudo` | implementar regressão logística |
@@ -284,3 +284,77 @@ Faça commits pequenos e claros. Ao concluir a atividade, envie a branch e abra 
 O repositório partiu do template da disciplina. O pré-processamento agora é
 compartilhado; a implementação dos classificadores, os experimentos e a análise
 dos resultados permanecem como responsabilidades dos integrantes.
+
+
+## Experimentos KNN
+
+Execute na raiz, com a `.venv` e as dependências instaladas:
+
+```bash
+python -m src.data.download
+python -m src.models.knn
+python -m pytest -q
+```
+
+O módulo aceita `--raw-dir` e `--results-dir` para diretórios alternativos.
+Não é necessário gerar CSVs processados antes: os experimentos usam `load_split()`
+e ajustam o pré-processamento completo dentro de cada fold de validação.
+Importar o módulo não inicia treinamento.
+
+### Referência e seleção
+
+A referência fixa usa 95 vizinhos, pesos por distância e distância Manhattan,
+conforme a configuração final do [notebook Pima + RTML dos autores](https://github.com/tansin-nabil/Diabetes-Prediction-Using-Machine-Learning/blob/23b982a20815c4965da47b4b1745c5d3ef0735d1/Clean_work_PIMA%2BRTML.ipynb).
+Células anteriores do mesmo notebook usam 74 vizinhos. Essa divergência é
+registrada; não se trata de uma reprodução numérica exata do artigo.
+
+Nos três cenários (`none`, `smote`, `adasyn`), a busca testa vizinhos
+3, 5, 7, 11, 15, 21, 31, 51, 74 e 95; pesos uniformes ou por distância;
+e distância Minkowski com p=1 (Manhattan) ou p=2 (Euclidiana).
+São 40 configurações por cenário, em três folds estratificados com embaralhamento
+e semente 0. A referência também é avaliada nos mesmos folds.
+
+A configuração e o cenário são escolhidos pela maior AUC média da validação,
+antes de avaliar o teste. Empates seguem a ordem `none`, `smote`, `adasyn`;
+dentro de cada cenário, a ordem de vizinhos, pesos e p descrita acima.
+O teste contém os mesmos 176 pacientes em todas as avaliações. Imputação,
+regressão de insulina, reamostragem e escala são aprendidas somente no treino
+de cada fold. Não usamos as curvas de teste para ajustar o número de vizinhos,
+em validação cruzada sobre CSVs já transformados.
+
+### Resultados locais
+
+Execução em Python 3.11.13 com as versões fixadas do projeto:
+
+| Cenário | Modelo | AUC validação (média ± desvio) | Acurácia teste | Precisão | Recall | F1 | AUC teste |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| none | Referência | 0,8506 ± 0,0085 | 0,7670 | 0,7297 | 0,4655 | 0,5684 | 0,8293 |
+| none | Ajustado | 0,8615 ± 0,0063 | 0,7727 | 0,7143 | 0,5172 | 0,6000 | 0,8293 |
+| smote | Referência | 0,8466 ± 0,0137 | 0,7216 | 0,5652 | 0,6724 | 0,6142 | 0,8219 |
+| smote | Ajustado | 0,8547 ± 0,0159 | 0,6932 | 0,5294 | 0,6207 | 0,5714 | 0,8190 |
+| adasyn | Referência | 0,8439 ± 0,0080 | 0,6989 | 0,5342 | 0,6724 | 0,5954 | 0,8194 |
+| adasyn | Ajustado | 0,8519 ± 0,0147 | 0,6989 | 0,5342 | 0,6724 | 0,5954 | 0,8133 |
+
+Precisão, recall e F1 se referem à classe positiva (Outcome=1). AUC usa
+probabilidades, e o desvio é a dispersão entre folds, não um intervalo de confiança.
+A busca selecionou 31 vizinhos, pesos por distância e Manhattan em todos os cenários.
+O vencedor pela validação foi `none`; o melhor F1 de teste entre as seis linhas
+não é usado para mudar essa escolha. Neste experimento, balanceamento aumentou
+o recall da referência, com perda de precisão e acurácia. A melhoria na validação
+não garantiu melhoria na AUC de teste, especialmente nos cenários reamostrados.
+Esses resultados são de uma divisão fixa e não demonstram superioridade geral.
+
+### Saídas e verificação
+
+Em `results/metrics/`, `knn_results.csv` contém as seis linhas, os arquivos
+`knn_cv_<cenario>.csv` guardam todas as configurações e resultados por fold,
+e `knn_experiment.json` registra fontes, versões, grade, parâmetros e IDs da divisão.
+Em `results/artifacts/`, são gravadas seis pipelines completas e `knn_best.joblib`,
+a pipeline ajustada selecionada pela validação. Para prever, forneça dados brutos
+compatíveis com `load_split()`, incluindo `_source`.
+
+Os arquivos gerados permanecem locais e ignorados pelo Git. Uma nova execução
+substitui as saídas no diretório escolhido; use `--results-dir` para guardar
+experimentos separados. Os testes verificam métricas independentemente, ausência
+de treinamento no import, isolamento do teste na seleção, repetibilidade,
+erros de busca explícitos e igualdade das previsões após serialização.
